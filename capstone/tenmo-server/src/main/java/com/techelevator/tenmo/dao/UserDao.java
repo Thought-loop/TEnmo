@@ -15,4 +15,10 @@ public interface UserDao {
     boolean create(String username, String password);
 
     double getBalance(String name);
-}
+
+    boolean send(String userName, double amount);
+
+    boolean receive(String userName, double amount);
+
+    }
+
