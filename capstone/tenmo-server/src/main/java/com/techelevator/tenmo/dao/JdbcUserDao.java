@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+//Allows us to use a generic form of userDao in our controller
 @Component
 public class JdbcUserDao implements UserDao {
 
@@ -77,6 +78,15 @@ public class JdbcUserDao implements UserDao {
         }
 
         return true;
+    }
+
+    //take a double from the balance column
+    public double getBalance(String userName){
+        String sql = "SELECT balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE username = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
+        results.next();
+
+        return results.getDouble("balance");
     }
 
     private User mapRowToUser(SqlRowSet rs) {
