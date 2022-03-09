@@ -89,6 +89,46 @@ public class JdbcUserDao implements UserDao {
         return results.getDouble("balance");
     }
 
+    public boolean send(String userName, double amount) {
+        String sql = "UPDATE account SET balance = balance - ? WHERE user_id = ?;";
+        int rowsUpdated = jdbcTemplate.update(sql, amount, findIdByUsername(userName));
+        if(rowsUpdated > 0){
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    public boolean receive(String userName, double amount) {
+        String sql = "UPDATE account SET balance = balance + ? WHERE user_id = ?;";
+        int rowsUpdated = jdbcTemplate.update(sql, amount, findIdByUsername(userName));
+        if(rowsUpdated > 0){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+        //        //check to make sure sending user has at least the amount they are trying to send
+//        //check to make sure transfer amount is greater than zero
+//        //if not, return false - transfer cannot be completed
+//        if((amount > getBalance(sendingUser)) || (amount <= 0)){
+//            return false;
+//        }
+//
+//        String sql = ""
+//
+////        The receiver's account balance is increased by the amount of the transfer.
+////        The sender's account balance is decreased by the amount of the transfer.
+
+
+
+
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getLong("user_id"));
