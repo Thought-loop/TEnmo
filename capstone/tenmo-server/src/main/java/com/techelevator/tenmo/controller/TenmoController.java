@@ -18,6 +18,7 @@ import java.util.List;
 public class TenmoController {
 
     private UserDao userDao;
+    private TenmoController transactionDao;
 
     //Rest controller is automatically injecting a jdbcUserDao
     public TenmoController(UserDao userDao) {
@@ -48,5 +49,10 @@ public class TenmoController {
         userDao.receive(transaction.getDestinationName(), transaction.getAmount());
     }
 
+    @RequestMapping(path = "/transactions/{id}", method = RequestMethod.GET)
+    public Transaction get(@PathVariable int id) {
+
+        return transactionDao.get(id);
+    }
 
 }
