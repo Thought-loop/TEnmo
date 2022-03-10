@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class InvalidTransferAmountException extends Exception{
     private static final long serialVersionUID = 1L;
 
-    public InvalidTransferAmountException(){ super("invalid transfer amount (negative or insufficient balance)");}
+    public InvalidTransferAmountException(){ super("invalid transfer amount (insufficient balance)");}
 
     @Override
     public synchronized Throwable fillInStackTrace() {

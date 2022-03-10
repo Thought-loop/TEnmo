@@ -1,7 +1,9 @@
 package com.techelevator.tenmo.model;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 public class Transaction {
     //where/who going to
@@ -9,8 +11,8 @@ public class Transaction {
     //amount of transfer
 
     private int transferID;
-    @Min(value = 0, message = "Amount must be greater than 0")
-    private double amount;
+    @DecimalMin(value = "0.0", inclusive = false, message = "Transfer amount must be greater than 0")
+    private BigDecimal amount;
     @NotBlank(message = "The field 'senderName' is required.")
     private String senderName;
     private int senderID;
@@ -22,7 +24,7 @@ public class Transaction {
 
     public Transaction(){}
 
-    public Transaction(double amount, String senderName, String destinationName, int type) {
+    public Transaction(BigDecimal amount, String senderName, String destinationName, int type) {
         this.amount = amount;
         this.senderName = senderName;
         this.destinationName = destinationName;
@@ -37,11 +39,11 @@ public class Transaction {
         this.transferID = transferID;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

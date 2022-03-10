@@ -50,7 +50,7 @@ public class JdbcTransactionDAO implements TransactionDAO{
         //converts columns into a transaction object and returns that object
 
         Transaction transaction = new Transaction();
-        transaction.setAmount(rowSet.getDouble("amount"));
+        transaction.setAmount(rowSet.getBigDecimal("amount"));
         transaction.setDestinationID(rowSet.getInt("account_to"));
         transaction.setSenderID(rowSet.getInt("account_from"));
         transaction.setTransferID(rowSet.getInt("transfer_id"));
