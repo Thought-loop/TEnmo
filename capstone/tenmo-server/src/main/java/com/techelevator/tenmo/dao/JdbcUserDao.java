@@ -57,6 +57,17 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public int findAccountIdByUsername(String username){
+        String sql = "SELECT account_id from tenmo_user JOIN account ON tenmo_user.user_id = account.user_id WHERE username ILIKE ?;";
+        Integer id = jdbcTemplate.queryForObject(sql, Integer.class, username);
+        if (id != null) {
+            return id;
+        } else {
+            return -1;
+        }
+    }
+
+    @Override
     public boolean create(String username, String password) {
 
         // create user
@@ -80,7 +91,8 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
-    //take a double from the balance column
+    //take a BigDecimal from the balance column
+    @Override
     public BigDecimal getBalance(String userName){
         String sql = "SELECT balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE username = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
@@ -89,6 +101,7 @@ public class JdbcUserDao implements UserDao {
         return results.getBigDecimal("balance");
     }
 
+    @Override
     public boolean send(String userName, BigDecimal amount) {
         String sql = "UPDATE account SET balance = balance - ? WHERE user_id = ?;";
         int rowsUpdated = jdbcTemplate.update(sql, amount, findIdByUsername(userName));
@@ -101,6 +114,7 @@ public class JdbcUserDao implements UserDao {
 
     }
 
+    @Override
     public boolean receive(String userName, BigDecimal amount) {
         String sql = "UPDATE account SET balance = balance + ? WHERE user_id = ?;";
         int rowsUpdated = jdbcTemplate.update(sql, amount, findIdByUsername(userName));
@@ -111,21 +125,6 @@ public class JdbcUserDao implements UserDao {
             return false;
         }
     }
-
-
-        //        //check to make sure sending user has at least the amount they are trying to send
-//        //check to make sure transfer amount is greater than zero
-//        //if not, return false - transfer cannot be completed
-//        if((amount > getBalance(sendingUser)) || (amount <= 0)){
-//            return false;
-//        }
-//
-//        String sql = ""
-//
-////        The receiver's account balance is increased by the amount of the transfer.
-////        The sender's account balance is decreased by the amount of the transfer.
-
-
 
 
 

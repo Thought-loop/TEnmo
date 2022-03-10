@@ -3,6 +3,7 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.TransactionDAO;
 import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.exception.FraudulentTransferException;
 import com.techelevator.tenmo.exception.InvalidTransferAmountException;
 import com.techelevator.tenmo.model.Transaction;
 import com.techelevator.tenmo.model.User;
@@ -38,33 +39,50 @@ public class TenmoController {
         return userDao.getBalance(principal.getName());
     }
 
-    //As an authenticated user of the system,
-    //I need to be able to *send* a transfer of a specific amount of TE Bucks to a registered user.
-    //localhost:8080/send
+
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path="/send", method = RequestMethod.POST)
-    public void sendTransfer(@RequestBody @Valid Transaction transaction, Principal principal) throws InvalidTransferAmountException {
+    public Transaction sendTransfer(@RequestBody @Valid Transaction transaction, Principal principal)
+            throws InvalidTransferAmountException, FraudulentTransferException {
 
+        //first verify that the source account in the transaction object matches the currently logged-in user
+        //if the names don't match, throw a FraudulentTransferException and exit the method
+        if(!transaction.getSenderName().equals(principal.getName())){
+            throw new FraudulentTransferException();
+        }
+
+        //check to see if the transfer amount is more than the sender's account balance
+        //if so, throw an exception and exit the method
         BigDecimal usersBalance = userDao.getBalance(transaction.getSenderName());
         BigDecimal transferAmount = transaction.getAmount();
         if(usersBalance.compareTo(transferAmount)==-1){
             throw new InvalidTransferAmountException();
         }
+
+        //process send and receive sides of the transfer
         userDao.send(transaction.getSenderName(), transaction.getAmount());
         userDao.receive(transaction.getDestinationName(), transaction.getAmount());
+
+        //set the transaction type to (2 - send)
+        //set the transaction status to (2 - approved)
+        transaction.setType(2);
+        transaction.setStatus(2);
+
+        //record the transaction in the DAO and return the transaction object
+        //the returned transaction object will now have a transaction ID
+        return transactionDao.create(transaction);
     }
 
 
     @RequestMapping(path = "/transactions", method = RequestMethod.GET)
-    public List<Transaction> listTransactions(Principal principal){ return transactionDao.listTransactions(userDao.findIdByUsername(principal.getName()));
+    public List<Transaction> listTransactions(Principal principal) {
+        return transactionDao.listTransactions(userDao.findAccountIdByUsername(principal.getName()));
+    }
 
-        }
 
     @RequestMapping(path = "/transactions/{id}", method = RequestMethod.GET)
     public Transaction get(@PathVariable int id) {
-
-        return transactionDao.get(id);
-
+        return transactionDao.getTransaction(id);
     }
 
 }
