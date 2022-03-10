@@ -6,19 +6,24 @@ import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 public class Transaction {
-    //where/who going to
-    //where/who coming from
-    //amount of transfer
 
     private int transferID;
+
     @DecimalMin(value = "0.0", inclusive = false, message = "Transfer amount must be greater than 0")
     private BigDecimal amount;
+
     @NotBlank(message = "The field 'senderName' is required.")
     private String senderName;
-    private int senderID;
+
+    @Min(value = 1000, message = "Must have a valid sender ID")
+    private int senderAccountID;
+
     @NotBlank(message = "The field 'destinationName' is required.")
     private String destinationName;
-    private int destinationID;
+
+    @Min(value = 1000, message = "Must have a valid destination ID")
+    private int destinationAccountID;
+
     private int status;
     private int type;
 
@@ -55,12 +60,12 @@ public class Transaction {
         this.senderName = senderName;
     }
 
-    public int getSenderID() {
-        return senderID;
+    public int getSenderAccountID() {
+        return senderAccountID;
     }
 
-    public void setSenderID(int senderID) {
-        this.senderID = senderID;
+    public void setSenderAccountID(int senderAccountID) {
+        this.senderAccountID = senderAccountID;
     }
 
     public String getDestinationName() {
@@ -71,12 +76,12 @@ public class Transaction {
         this.destinationName = destinationName;
     }
 
-    public int getDestinationID() {
-        return destinationID;
+    public int getDestinationAccountID() {
+        return destinationAccountID;
     }
 
-    public void setDestinationID(int destinationID) {
-        this.destinationID = destinationID;
+    public void setDestinationAccountID(int destinationAccountID) {
+        this.destinationAccountID = destinationAccountID;
     }
 
     public int getType() {
@@ -93,5 +98,19 @@ public class Transaction {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "transferID=" + transferID +
+                ", amount=" + amount +
+                ", senderName='" + senderName + '\'' +
+                ", senderID=" + senderAccountID +
+                ", destinationName='" + destinationName + '\'' +
+                ", destinationID=" + destinationAccountID +
+                ", status=" + status +
+                ", type=" + type +
+                '}';
     }
 }
