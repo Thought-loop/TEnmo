@@ -81,15 +81,15 @@ public class JdbcUserDao implements UserDao {
     }
 
     //take a double from the balance column
-    public double getBalance(String userName){
+    public BigDecimal getBalance(String userName){
         String sql = "SELECT balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE username = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
         results.next();
 
-        return results.getDouble("balance");
+        return results.getBigDecimal("balance");
     }
 
-    public boolean send(String userName, double amount) {
+    public boolean send(String userName, BigDecimal amount) {
         String sql = "UPDATE account SET balance = balance - ? WHERE user_id = ?;";
         int rowsUpdated = jdbcTemplate.update(sql, amount, findIdByUsername(userName));
         if(rowsUpdated > 0){
@@ -101,7 +101,7 @@ public class JdbcUserDao implements UserDao {
 
     }
 
-    public boolean receive(String userName, double amount) {
+    public boolean receive(String userName, BigDecimal amount) {
         String sql = "UPDATE account SET balance = balance + ? WHERE user_id = ?;";
         int rowsUpdated = jdbcTemplate.update(sql, amount, findIdByUsername(userName));
         if(rowsUpdated > 0){

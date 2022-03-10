@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class TenmoController {
     }
 
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
-    public double getBalance(Principal principal) {
+    public BigDecimal getBalance(Principal principal) {
         //How do we get user id from token?
         //We will be passing in a User object
         //@Valid says it has to be a valid token, then constructs a user object
@@ -38,10 +39,10 @@ public class TenmoController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path="/send", method = RequestMethod.POST)
     public void sendTransfer(@RequestBody @Valid Transaction transaction, Principal principal) throws InvalidTransferAmountException {
-        //send from sender's account
-        //receive to destination account
 
-        if((transaction.getAmount() > userDao.getBalance(transaction.getSenderName()) || (transaction.getAmount() <= 0))){
+        BigDecimal usersBalance = userDao.getBalance(transaction.getSenderName());
+        BigDecimal transferAmount = transaction.getAmount();
+        if(usersBalance.compareTo(transferAmount)==-1){
             throw new InvalidTransferAmountException();
         }
         userDao.send(transaction.getSenderName(), transaction.getAmount());
