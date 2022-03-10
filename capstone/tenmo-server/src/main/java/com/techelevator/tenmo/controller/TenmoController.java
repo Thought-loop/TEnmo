@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.JdbcUserDao;
+import com.techelevator.tenmo.dao.TransactionDAO;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.exception.InvalidTransferAmountException;
 import com.techelevator.tenmo.model.Transaction;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -18,10 +20,12 @@ import java.util.List;
 public class TenmoController {
 
     private UserDao userDao;
+    private TransactionDAO transactionDao;
 
     //Rest controller is automatically injecting a jdbcUserDao
-    public TenmoController(UserDao userDao) {
+    public TenmoController(UserDao userDao, TransactionDAO transactionDAO) {
         this.userDao = userDao;
+        this.transactionDao = transactionDAO;
     }
 
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
@@ -48,5 +52,12 @@ public class TenmoController {
         userDao.receive(transaction.getDestinationName(), transaction.getAmount());
     }
 
+    @RequestMapping(path = "/transactions", method = RequestMethod.GET)
+    public List<Transaction> listTransactions(Principal principal){ return transactionDao.listTransactions(userDao.findIdByUsername(principal.getName()));
+
+        }
+
+
+    }
 
 }
