@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Transaction;
 import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,7 +36,8 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public List<User> findAll() {
+    public User[] findAll() {
+        //Query database and add all users to a list
         List<User> users = new ArrayList<>();
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
@@ -44,7 +46,12 @@ public class JdbcUserDao implements UserDao {
             user.setPassword("REDACTED");
             users.add(user);
         }
-        return users;
+        User[] allUsers = new User[users.size()];
+        for(int i = 0; i < allUsers.length; i++){
+            allUsers[i] = users.get(i);
+        }
+
+        return allUsers;
     }
 
     @Override
