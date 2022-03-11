@@ -41,6 +41,7 @@ public class JdbcUserDao implements UserDao {
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while(results.next()) {
             User user = mapRowToUser(results);
+            user.setPassword("REDACTED");
             users.add(user);
         }
         return users;
