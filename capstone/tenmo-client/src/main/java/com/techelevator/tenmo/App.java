@@ -2,15 +2,19 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transaction;
+
 import com.techelevator.tenmo.model.User;
+
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TenmoService;
 
+
 import javax.xml.crypto.dsig.TransformService;
 import java.math.BigDecimal;
 import java.util.List;
+
 
 public class App {
 
@@ -70,6 +74,7 @@ public class App {
             tenmoService.setAuthToken(currentUser.getToken());
         }
         //TODO insert our auth token into TenmoService here
+
     }
 
     private void mainMenu() {
