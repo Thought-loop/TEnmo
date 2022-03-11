@@ -11,6 +11,7 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
+    //TODO declare a TenmoService variable/object here
 
     private AuthenticatedUser currentUser;
 
@@ -58,6 +59,7 @@ public class App {
         if (currentUser == null) {
             consoleService.printErrorMessage();
         }
+        //TODO insert our auth token into TenmoService here
     }
 
     private void mainMenu() {
