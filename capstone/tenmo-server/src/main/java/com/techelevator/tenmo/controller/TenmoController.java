@@ -85,4 +85,10 @@ public class TenmoController {
         return transactionDao.getTransaction(id);
     }
 
+    //returns a list of users (with passwords redacted)
+    @RequestMapping(path = "/users", method = RequestMethod.GET)
+    public List<User> getAllUsers(){
+        return userDao.findAll();
+
+    }
 }

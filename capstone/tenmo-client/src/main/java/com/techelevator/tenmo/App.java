@@ -1,9 +1,20 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transaction;
+
+import com.techelevator.tenmo.model.User;
+
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TenmoService;
+
+
+import javax.xml.crypto.dsig.TransformService;
+import java.math.BigDecimal;
+import java.util.List;
+
 
 public class App {
 
@@ -11,7 +22,7 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    //TODO declare a TenmoService variable/object here
+    private final TenmoService tenmoService = new TenmoService();
 
     private AuthenticatedUser currentUser;
 
@@ -59,7 +70,11 @@ public class App {
         if (currentUser == null) {
             consoleService.printErrorMessage();
         }
+        else{
+            tenmoService.setAuthToken(currentUser.getToken());
+        }
         //TODO insert our auth token into TenmoService here
+
     }
 
     private void mainMenu() {
@@ -87,13 +102,36 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		
+		// TODO update placeholder to actual tenmoService method for calling /balance endpoint
+        BigDecimal balance = tenmoService.PLACEHOLDER();
+        System.out.println("Your current account balance is: $" + balance);
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		
+		// TODO update placeholder to actual tenmoService method for calling /transactions endpoint
+        List<Transaction> transfers = tenmoService.PLACEHOLDER();
+		if(transfers.isEmpty()){
+            System.out.println("*********You have no transfers in your history********");
+        }
+        else{
+            User user = currentUser.getUser();
+            System.out.println("ID-----FROM/TO-----AMOUNT");
+            for(Transaction transfer: transfers){
+                //if user was sender, show as TO
+                if(user.getUsername().equals(transfer.getSenderName())){
+                    System.out.println(transfer.getTransferID()+"-----TO:" + transfer.getDestinationName() + "-----$" + transfer.getAmount());
+                }
+                //if user received, show as FROM
+                else if(user.getUsername().equals(transfer.getDestinationName())){
+                    System.out.println(transfer.getTransferID()+"-----FROM:" + transfer.getSenderName() + "-----$" + transfer.getAmount());
+                }
+                //if user doesn't match any part of transaction, we have a problem :(
+                else{
+                    System.out.println("----------------INVALID TRANSFER IN DATABASE----------------");
+                }
+            }
+            System.out.println("---------------------------------------------");
+        }
 	}
 
 	private void viewPendingRequests() {
@@ -103,6 +141,8 @@ public class App {
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
+        //help user create a transaction object
+        //
 		
 	}
 
