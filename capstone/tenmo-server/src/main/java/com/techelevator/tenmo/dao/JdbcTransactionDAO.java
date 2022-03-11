@@ -49,12 +49,15 @@ public class JdbcTransactionDAO implements TransactionDAO{
         return null;
     }
 
+    //look up 2000 number from 1000 number and set that as account_id for the insert
     @Override
     public Transaction create(Transaction transaction){
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (?,?,?,?,?) RETURNING transfer_id;";
+                "VALUES (?,?," +
+                "(SELECT account_id FROM account WHERE user_id = ?)," +
+                "(SELECT account_id FROM account WHERE user_id = ?),?) RETURNING transfer_id;";
         Integer id = jdbcTemplate.queryForObject(sql,Integer.class, transaction.getType(), transaction.getStatus(),
-                transaction.getSenderAccountID(), transaction.getDestinationAccountID(), transaction.getAmount());
+                transaction.getSenderUserID(), transaction.getDestinationUserID(), transaction.getAmount());
         transaction.setTransferID(id);
         return transaction;
     }
@@ -65,20 +68,20 @@ public class JdbcTransactionDAO implements TransactionDAO{
 
         Transaction transaction = new Transaction();
         transaction.setAmount(rowSet.getBigDecimal("amount"));
-        transaction.setDestinationAccountID(rowSet.getInt("account_to"));
-        transaction.setSenderAccountID(rowSet.getInt("account_from"));
+        transaction.setDestinationUserID(rowSet.getInt("account_to"));
+        transaction.setSenderUserID(rowSet.getInt("account_from"));
         transaction.setTransferID(rowSet.getInt("transfer_id"));
         transaction.setType(rowSet.getInt("transfer_type_id"));
         transaction.setStatus(rowSet.getInt("transfer_status_id"));
 
         String sql = "SELECT username from tenmo_user JOIN account ON tenmo_user.user_id = account.user_id WHERE account_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transaction.getDestinationAccountID());
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transaction.getDestinationUserID());
         if(results.next()){
             transaction.setDestinationName(results.getString("username"));
         }
 
         sql = "SELECT username from tenmo_user JOIN account ON tenmo_user.user_id = account.user_id WHERE account_id = ?;";
-        results = jdbcTemplate.queryForRowSet(sql, transaction.getSenderAccountID());
+        results = jdbcTemplate.queryForRowSet(sql, transaction.getSenderUserID());
         if(results.next()){
             transaction.setSenderName(results.getString("username"));
         }

@@ -14,6 +14,7 @@ import com.techelevator.tenmo.services.TenmoService;
 import javax.xml.crypto.dsig.TransformService;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Scanner;
 
 
 public class App {
@@ -103,27 +104,27 @@ public class App {
 
 	private void viewCurrentBalance() {
 		// TODO update placeholder to actual tenmoService method for calling /balance endpoint
-        BigDecimal balance = tenmoService.PLACEHOLDER();
+        BigDecimal balance = tenmoService.getBalance();
         System.out.println("Your current account balance is: $" + balance);
 	}
 
 	private void viewTransferHistory() {
 		// TODO update placeholder to actual tenmoService method for calling /transactions endpoint
-        List<Transaction> transfers = tenmoService.PLACEHOLDER();
-		if(transfers.isEmpty()){
+        Transaction[] transfers = tenmoService.listTransactions();
+		if(transfers.length == 0){
             System.out.println("*********You have no transfers in your history********");
         }
         else{
             User user = currentUser.getUser();
             System.out.println("ID-----FROM/TO-----AMOUNT");
-            for(Transaction transfer: transfers){
+            for(int i = 0; i < transfers.length; i++){
                 //if user was sender, show as TO
-                if(user.getUsername().equals(transfer.getSenderName())){
-                    System.out.println(transfer.getTransferID()+"-----TO:" + transfer.getDestinationName() + "-----$" + transfer.getAmount());
+                if(user.getUsername().equals(transfers[i].getSenderName())){
+                    System.out.println(transfers[i].getTransferID()+"-----TO:" + transfers[i].getDestinationName() + "-----$" + transfers[i].getAmount());
                 }
                 //if user received, show as FROM
-                else if(user.getUsername().equals(transfer.getDestinationName())){
-                    System.out.println(transfer.getTransferID()+"-----FROM:" + transfer.getSenderName() + "-----$" + transfer.getAmount());
+                else if(user.getUsername().equals(transfers[i].getDestinationName())){
+                    System.out.println(transfers[i].getTransferID()+"-----FROM:" + transfers[i].getSenderName() + "-----$" + transfers[i].getAmount());
                 }
                 //if user doesn't match any part of transaction, we have a problem :(
                 else{
@@ -142,8 +143,30 @@ public class App {
 	private void sendBucks() {
 		// TODO Auto-generated method stub
         //help user create a transaction object
-        //
-		
+       User[] allUsers = tenmoService.getAllUsers();
+       int currentUserIndex = -1;
+       for(int i = 0; i < allUsers.length; i++){
+            if (allUsers[i].getUsername().equals(currentUser.getUser().getUsername())){
+                currentUserIndex = i;
+            } else {
+                System.out.println(i + ") " +  allUsers[i].getId() + "----" + allUsers[i].getUsername());
+            }
+        }
+        int userSelection = consoleService.promptForMenuSelection("Please choose a user to send TE bucks to: ");
+        while ((userSelection < 0) || (userSelection >= allUsers.length ) ||(userSelection == currentUserIndex)){
+            System.out.println("Hit the road Jack!");
+            userSelection = consoleService.promptForMenuSelection("Please choose a user to send TE bucks to: ");
+        }
+        Transaction transaction = new Transaction();
+       BigDecimal amount = consoleService.promptForBigDecimal("Please enter amount to send: ");
+       transaction.setAmount(amount);
+       transaction.setSenderName(currentUser.getUser().getUsername());
+       //user chosen is retrieved using username from array of users
+       transaction.setDestinationName(allUsers[userSelection].getUsername());
+       transaction.setSenderUserID(currentUser.getUser().getId().intValue());
+       transaction.setDestinationUserID(allUsers[userSelection].getId().intValue());
+        System.out.println(tenmoService.sendMoney(transaction));
+
 	}
 
 	private void requestBucks() {

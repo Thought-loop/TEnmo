@@ -16,13 +16,13 @@ public class Transaction {
     private String senderName;
 
     @Min(value = 1000, message = "Must have a valid sender ID")
-    private int senderAccountID;
+    private int senderUserID;
 
     @NotBlank(message = "The field 'destinationName' is required.")
     private String destinationName;
 
     @Min(value = 1000, message = "Must have a valid destination ID")
-    private int destinationAccountID;
+    private int destinationUserID;
 
     private int status;
     private int type;
@@ -60,12 +60,12 @@ public class Transaction {
         this.senderName = senderName;
     }
 
-    public int getSenderAccountID() {
-        return senderAccountID;
+    public int getSenderUserID() {
+        return senderUserID;
     }
 
-    public void setSenderAccountID(int senderAccountID) {
-        this.senderAccountID = senderAccountID;
+    public void setSenderUserID(int senderUserID) {
+        this.senderUserID = senderUserID;
     }
 
     public String getDestinationName() {
@@ -76,12 +76,12 @@ public class Transaction {
         this.destinationName = destinationName;
     }
 
-    public int getDestinationAccountID() {
-        return destinationAccountID;
+    public int getDestinationUserID() {
+        return destinationUserID;
     }
 
-    public void setDestinationAccountID(int destinationAccountID) {
-        this.destinationAccountID = destinationAccountID;
+    public void setDestinationUserID(int destinationUserID) {
+        this.destinationUserID = destinationUserID;
     }
 
     public int getType() {
@@ -106,9 +106,9 @@ public class Transaction {
                 "transferID=" + transferID +
                 ", amount=" + amount +
                 ", senderName='" + senderName + '\'' +
-                ", senderID=" + senderAccountID +
+                ", senderID=" + senderUserID +
                 ", destinationName='" + destinationName + '\'' +
-                ", destinationID=" + destinationAccountID +
+                ", destinationID=" + destinationUserID +
                 ", status=" + status +
                 ", type=" + type +
                 '}';
