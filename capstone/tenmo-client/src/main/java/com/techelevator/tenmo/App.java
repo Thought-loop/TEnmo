@@ -149,24 +149,25 @@ public class App {
             if (allUsers[i].getUsername().equals(currentUser.getUser().getUsername())){
                 currentUserIndex = i;
             } else {
-                System.out.println(i + ") " +  allUsers[i].getId() + "----" + allUsers[i].getUsername());
+                System.out.println((i+1) + ") " +  allUsers[i].getId() + "----" + allUsers[i].getUsername());
             }
         }
-        int userSelection = consoleService.promptForMenuSelection("Please choose a user to send TE bucks to: ");
-        while ((userSelection < 0) || (userSelection >= allUsers.length ) ||(userSelection == currentUserIndex)){
+        int userSelection = consoleService.promptForMenuSelection("Please choose a user to send TE bucks to (0 to exit): ")-1;
+        while ((userSelection < -1) || (userSelection >= allUsers.length ) ||(userSelection == currentUserIndex)){
             System.out.println("Hit the road Jack!");
-            userSelection = consoleService.promptForMenuSelection("Please choose a user to send TE bucks to: ");
+            userSelection = consoleService.promptForMenuSelection("Please choose a user to send TE bucks to (0 to exit): ")-1;
         }
-        Transaction transaction = new Transaction();
-       BigDecimal amount = consoleService.promptForBigDecimal("Please enter amount to send: ");
-       transaction.setAmount(amount);
-       transaction.setSenderName(currentUser.getUser().getUsername());
-       //user chosen is retrieved using username from array of users
-       transaction.setDestinationName(allUsers[userSelection].getUsername());
-       transaction.setSenderUserID(currentUser.getUser().getId().intValue());
-       transaction.setDestinationUserID(allUsers[userSelection].getId().intValue());
-        System.out.println(tenmoService.sendMoney(transaction));
-
+        if(userSelection != -1) {
+            Transaction transaction = new Transaction();
+            BigDecimal amount = consoleService.promptForBigDecimal("Please enter amount to send: ");
+            transaction.setAmount(amount);
+            transaction.setSenderName(currentUser.getUser().getUsername());
+            //user chosen is retrieved using username from array of users
+            transaction.setDestinationName(allUsers[userSelection].getUsername());
+            transaction.setSenderUserID(currentUser.getUser().getId().intValue());
+            transaction.setDestinationUserID(allUsers[userSelection].getId().intValue());
+            System.out.println(tenmoService.sendMoney(transaction));
+        }
 	}
 
 	private void requestBucks() {

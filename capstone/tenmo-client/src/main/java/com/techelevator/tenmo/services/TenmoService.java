@@ -46,7 +46,7 @@ public class TenmoService {
         Transaction[] transactions = new Transaction[0];
         try {
             ResponseEntity <Transaction[]> response =
-                    restTemplate.exchange(API_BASE_URL + "/transaction", HttpMethod.GET, makeAuthEntity(), Transaction[].class);
+                    restTemplate.exchange(API_BASE_URL + "/transactions", HttpMethod.GET, makeAuthEntity(), Transaction[].class);
             transactions = response.getBody();
         }catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
@@ -83,8 +83,9 @@ public class TenmoService {
 
     }
 
-    public Transaction sendMoney(Transaction transaction) {
+    public String sendMoney(Transaction transaction) {
         Transaction responseTransaction = null;
+
 //transaction that we pass into this method gets wrapped into and Http entity with the token and is sent to our server
         try {
             ResponseEntity<Transaction> response =
@@ -92,8 +93,9 @@ public class TenmoService {
             responseTransaction = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
+            return "Invalid transfer amount (insufficient balance or invalid transfer amount)";
         }
-    return responseTransaction;
+    return responseTransaction.toString();
     }
 
 
