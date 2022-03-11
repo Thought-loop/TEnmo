@@ -1,9 +1,11 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transaction;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TenmoService;
 
 public class App {
 
@@ -60,6 +62,7 @@ public class App {
             consoleService.printErrorMessage();
         }
         //TODO insert our auth token into TenmoService here
+
     }
 
     private void mainMenu() {
