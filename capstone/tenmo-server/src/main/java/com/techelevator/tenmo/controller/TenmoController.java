@@ -75,7 +75,7 @@ public class TenmoController {
 
 
     @RequestMapping(path = "/transactions", method = RequestMethod.GET)
-    public List<Transaction> listTransactions(Principal principal) {
+    public Transaction[] listTransactions(Principal principal) {
         return transactionDao.listTransactions(userDao.findAccountIdByUsername(principal.getName()));
     }
 
