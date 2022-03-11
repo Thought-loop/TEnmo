@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TransactionDAO {
 
-    List<Transaction> listTransactions(int userID);
+    Transaction[] listTransactions(int userID);
 
     Transaction getTransaction(int transferID);
 

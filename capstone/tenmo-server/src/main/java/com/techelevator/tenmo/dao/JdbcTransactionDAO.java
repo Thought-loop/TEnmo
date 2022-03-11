@@ -18,7 +18,7 @@ public class JdbcTransactionDAO implements TransactionDAO{
     }
 
     @Override
-    public List<Transaction> listTransactions(int userID){
+    public Transaction[] listTransactions(int userID){
         //query the transfer table for all transactions sent from, or sent to userID
         //converts them into transaction objects and adds all transaction objects to a list
         //returns the list of transaction objects
@@ -30,7 +30,12 @@ public class JdbcTransactionDAO implements TransactionDAO{
         while(results.next()){
             myTransactions.add(mapRowToTransaction(results));
         }
-        return myTransactions;
+
+        Transaction[] transactions = new Transaction[myTransactions.size()];
+        for(int i = 0; i < transactions.length; i++){
+            transactions[i] = myTransactions.get(i);
+        }
+        return transactions;
     }
 
     @Override
