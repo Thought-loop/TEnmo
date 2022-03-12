@@ -21,8 +21,6 @@ import java.util.List;
 @PreAuthorize("isAuthenticated()")
 public class TenmoController {
 
-    private static final String BASE_URL = "/tenmo";
-
     private UserDao userDao;
     private TransactionDAO transactionDao;
 
@@ -33,7 +31,7 @@ public class TenmoController {
         this.transactionDao = transactionDAO;
     }
 
-    @RequestMapping(path = BASE_URL + "/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "/balance", method = RequestMethod.GET)
     public BigDecimal getBalance(Principal principal) {
         //How do we get user id from token?
         //We will be passing in a User object
@@ -43,7 +41,7 @@ public class TenmoController {
 
 
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @RequestMapping(path = BASE_URL + "/send", method = RequestMethod.POST)
+    @RequestMapping(path="/send", method = RequestMethod.POST)
     public Transaction sendTransfer(@RequestBody @Valid Transaction transaction, Principal principal)
             throws InvalidTransferAmountException, FraudulentTransferException {
 
@@ -76,31 +74,31 @@ public class TenmoController {
     }
 
 
-    @RequestMapping(path = BASE_URL + "/transactions", method = RequestMethod.GET)
+    @RequestMapping(path = "/transactions", method = RequestMethod.GET)
     public Transaction[] listTransactions(Principal principal) {
         return transactionDao.listTransactions(userDao.findAccountIdByUsername(principal.getName()));
     }
 
 
-    @RequestMapping(path = BASE_URL + "/transactions/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "/transactions/{id}", method = RequestMethod.GET)
     public Transaction get(@PathVariable int id) {
         return transactionDao.getTransaction(id);
     }
 
     //returns a list of users (with passwords redacted)
-    @RequestMapping(path = BASE_URL + "/users", method = RequestMethod.GET)
+    @RequestMapping(path = "/users", method = RequestMethod.GET)
     public User[] getAllUsers(){
         return userDao.findAll();
 
     }
     // This enters the requested transaction into the database and then returns the transaction now including an ID to the client
-    @RequestMapping(path = BASE_URL + "/request", method = RequestMethod.POST)
+    @RequestMapping(path = "/request", method = RequestMethod.POST)
     public Transaction createRequest(@RequestBody @Valid Transaction transaction, Principal principal) {
         return transactionDao.create(transaction);
     }
 
     // This retrieves a list of transactions that are pending requests to the logged-in user and sends it to the client
-    @RequestMapping(path = BASE_URL + "/request", method = RequestMethod.GET)
+    @RequestMapping(path = "/request", method = RequestMethod.GET)
     public Transaction[] getPendingRequests(Principal principal) {
         return transactionDao.listPendingTransactions(userDao.findAccountIdByUsername(principal.getName()));
 
@@ -108,7 +106,7 @@ public class TenmoController {
 
     // This updates a pending transfer status in the database
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @RequestMapping(path = BASE_URL + "/request", method = RequestMethod.PUT)
+    @RequestMapping(path = "/request", method = RequestMethod.PUT)
     public void updateRequest(@RequestBody @Valid Transaction transaction, Principal principal)
             throws InvalidTransferAmountException {
 
