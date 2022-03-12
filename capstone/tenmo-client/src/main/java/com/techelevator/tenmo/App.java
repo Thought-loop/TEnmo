@@ -150,9 +150,73 @@ public class App {
 	}
 
 	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+        Transaction[] transfers = tenmoService.listPendingTransactions();
+        List<Integer> transferIDs = new ArrayList<>();
+        if(transfers.length == 0){
+            System.out.println("*********You have no transfers in your history********");
+        }
+        else{
+            User user = currentUser.getUser();
+            System.out.println("--------------------------------------------");
+            System.out.println("ID------FROM/TO---------------------AMOUNT");
+            for(int i = 0; i < transfers.length; i++){
+                //add the transfer ID to a list of transfer IDS
+                transferIDs.add(transfers[i].getTransferID());
+                //if user was sender, show as TO
+                if(user.getUsername().equals(transfers[i].getSenderName())){
+                    System.out.println(transfers[i].getTransferID()+"-----TO:" + transfers[i].getDestinationName() + "-------------------$" + transfers[i].getAmount());
+                }
+                //if user received, show as FROM
+                else if(user.getUsername().equals(transfers[i].getDestinationName())){
+                    System.out.println(transfers[i].getTransferID()+"-----FROM:" + transfers[i].getSenderName() + "-----------------$" + transfers[i].getAmount());
+                }
+                //if user doesn't match any part of transaction, we have a problem :(
+                else{
+                    System.out.println("----------------INVALID TRANSFER IN DATABASE----------------");
+                }
+            }
+            System.out.println("--------------------------------------------");
+        }
+
+        int userInput = consoleService.promptForInt("Enter a transfer ID to approve or reject. Enter (0) to return to the menu: ");
+        while(userInput != 0 && (!transferIDs.contains(userInput))){
+            userInput = consoleService.promptForInt("Not a valid ID. Enter a transfer ID or enter (0) to return to the menu: ");
+        }
+        if(userInput != 0){
+            Transaction singleTransaction = tenmoService.getTransaction(userInput);
+            System.out.println();
+            System.out.println(singleTransaction);
+            System.out.println("--------------------------------------------"+ System.lineSeparator() +
+                    "1: Approve" + System.lineSeparator() +
+                    "2: Reject " + System.lineSeparator() +
+                    "0: Don't approve or reject" + System.lineSeparator() +
+                    "--------------------------------------------");
+            userInput = consoleService.promptForInt("Please enter an option.");
+            while(userInput != 0 && userInput != 1 && userInput != 2) {
+                userInput = consoleService.promptForInt("Not a valid choice. Please enter an option.");
+            }
+            if(userInput == 1) {
+                singleTransaction.setStatus(2);
+                boolean success = tenmoService.updateRequestStatus(singleTransaction);
+                if (!success) {
+                    System.out.println("Unable to approve this request. Insufficient balance.");
+                }
+
+            }
+            else if (userInput == 2) {
+                singleTransaction.setStatus(3);
+                boolean success = tenmoService.updateRequestStatus(singleTransaction);
+                if (!success) {
+                    System.out.println("There was an error. Please try again.");
+                }
+
+            }
+        }
+    }
+
+
 		
-	}
+
 
 	private void sendBucks() {
         //help user create a transaction object
@@ -184,8 +248,38 @@ public class App {
 	}
 
 	private void requestBucks() {
-		// TODO Auto-generated method stub
+
+        User[] allUsers = tenmoService.getAllUsers();
+        int currentUserIndex = -1;
+        for(int i = 0; i < allUsers.length; i++){
+            if (allUsers[i].getUsername().equals(currentUser.getUser().getUsername())){
+                currentUserIndex = i;
+            } else {
+                System.out.println((i+1) + ") " +  allUsers[i].getId() + "----" + allUsers[i].getUsername());
+            }
+        }
+        int userSelection = consoleService.promptForMenuSelection("Please choose a user to request TE bucks from (0 to exit): ")-1;
+        while ((userSelection < -1) || (userSelection >= allUsers.length ) ||(userSelection == currentUserIndex)){
+            System.out.println("Hit the road Jack!");
+            userSelection = consoleService.promptForMenuSelection("Please choose a user to request TE bucks from (0 to exit): ")-1;
+        }
+        if(userSelection != -1) {
+            Transaction transaction = new Transaction();
+            BigDecimal amount = consoleService.promptForBigDecimal("Please enter amount to request: ");
+            transaction.setAmount(amount);
+            transaction.setDestinationName(currentUser.getUser().getUsername());
+            //user chosen is retrieved using username from array of users
+            transaction.setSenderName(allUsers[userSelection].getUsername());
+            transaction.setDestinationUserID(currentUser.getUser().getId().intValue());
+            transaction.setSenderUserID(allUsers[userSelection].getId().intValue());
+            transaction.setStatus(1);
+            transaction.setType(1);
+            System.out.println(tenmoService.requestMoney(transaction));
+        }
+    }
+
+
 		
 	}
 
-}
+

@@ -12,4 +12,8 @@ public interface TransactionDAO {
 
     Transaction create(Transaction transaction);
 
+    Transaction[] listPendingTransactions(int userID);
+
+    void updateTransferStatus(Transaction transaction);
+
 }
