@@ -1,9 +1,11 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transaction;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,4 +90,35 @@ public class JdbcTransactionDAO implements TransactionDAO{
 
         return transaction;
     }
+
+
+    public Transaction[] listPendingTransactions( int userID){
+
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
+                "FROM transfer WHERE account_from = ? AND transfer_type_id = 1 AND transfer_status_id = 1;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userID);
+        List<Transaction> myTransactions = new ArrayList<>();
+        while(results.next()){
+            myTransactions.add(mapRowToTransaction(results));
+        }
+
+        Transaction[] transactions = new Transaction[myTransactions.size()];
+        for(int i = 0; i < transactions.length; i++){
+            transactions[i] = myTransactions.get(i);
+        }
+        return transactions;
+
+    }
+
+
+    public void updateTransferStatus(Transaction transaction) {
+        String sql = "UPDATE transfer SET transfer_status_id = ? WHERE transfer_id = ?;";
+        int rowsUpdated = jdbcTemplate.update(sql, transaction.getStatus(), transaction.getTransferID());
+
+    }
+
+
+
+
+
 }

@@ -116,20 +116,46 @@ public class TenmoService {
     }
 
 
+    public Transaction[] listPendingTransactions(){
+        Transaction[] transactions = new Transaction[0];
+        try {
+            ResponseEntity <Transaction[]> response =
+                    restTemplate.exchange(API_BASE_URL + "/request", HttpMethod.GET, makeAuthEntity(), Transaction[].class);
+            transactions = response.getBody();
+        }catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
 
-//    public Transaction addTransaction(Transaction newTransaction) {
-//        Transaction returnedTransaction = null;
-//
-//        try {
-//            returnedTransaction = restTemplate.postForObject(API_BASE_URL + "transactions",
-//                    makeTransactionEntity(newTransaction), Transaction.class);
-//        }
-//        catch (RestClientException e) {
-//            BasicLogger.log(e.getMessage());
-//        }
-//
-//        return returnedTransaction;
-//    }
+        return transactions;
+    }
+
+    public boolean updateRequestStatus( Transaction transaction) {
+        boolean success = false;
+
+        try {
+                    restTemplate.put(API_BASE_URL + "/request", makeTransactionEntity(transaction) );
+                    success = true;
+        }catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return success;
+    }
+
+    public String requestMoney(Transaction transaction) {
+        Transaction responseTransaction = null;
+
+        //the transaction object that we pass into this method gets wrapped in an HttpEntity with the token and is sent to our server
+        try {
+            ResponseEntity<Transaction> response =
+                    restTemplate.exchange(API_BASE_URL + "/request", HttpMethod.POST, makeTransactionEntity(transaction), Transaction.class);
+            responseTransaction = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+            return "There was a problem making request.";
+        }
+        return responseTransaction.toString();
+    }
+
 
 
 

@@ -91,4 +91,40 @@ public class TenmoController {
         return userDao.findAll();
 
     }
+    // This enters the requested transaction into the database and then returns the transaction now including an ID to the client
+    @RequestMapping(path = "/request", method = RequestMethod.POST)
+    public Transaction createRequest(@RequestBody @Valid Transaction transaction, Principal principal) {
+        return transactionDao.create(transaction);
+    }
+
+    // This retrieves a list of transactions that are pending requests to the logged-in user and sends it to the client
+    @RequestMapping(path = "/request", method = RequestMethod.GET)
+    public Transaction[] getPendingRequests(Principal principal) {
+        return transactionDao.listPendingTransactions(userDao.findAccountIdByUsername(principal.getName()));
+
+    }
+
+    // This updates a pending transfer status in the database
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/request", method = RequestMethod.PUT)
+    public void updateRequest(@RequestBody @Valid Transaction transaction, Principal principal)
+            throws InvalidTransferAmountException {
+
+     if (transaction.getStatus()== 2) {
+         BigDecimal usersBalance = userDao.getBalance(transaction.getSenderName());
+         BigDecimal transferAmount = transaction.getAmount();
+         if(usersBalance.compareTo(transferAmount)==-1){
+             throw new InvalidTransferAmountException();
+         }
+         userDao.send(transaction.getSenderName(), transaction.getAmount());
+         userDao.receive(transaction.getDestinationName(), transaction.getAmount());
+     }
+        transactionDao.updateTransferStatus(transaction);
+
+    }
+
+
+
+
+
 }
