@@ -13,6 +13,7 @@ import com.techelevator.tenmo.services.TenmoService;
 
 import javax.xml.crypto.dsig.TransformService;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -23,7 +24,7 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    private final TenmoService tenmoService = new TenmoService();
+    private final TenmoService tenmoService = new TenmoService(API_BASE_URL);
 
     private AuthenticatedUser currentUser;
 
@@ -103,35 +104,48 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO update placeholder to actual tenmoService method for calling /balance endpoint
         BigDecimal balance = tenmoService.getBalance();
         System.out.println("Your current account balance is: $" + balance);
 	}
 
 	private void viewTransferHistory() {
-		// TODO update placeholder to actual tenmoService method for calling /transactions endpoint
+		// TODO add ability to get info about a specific transaction from the list of transactions
         Transaction[] transfers = tenmoService.listTransactions();
+        List<Integer> transferIDs = new ArrayList<>();
 		if(transfers.length == 0){
             System.out.println("*********You have no transfers in your history********");
         }
         else{
             User user = currentUser.getUser();
-            System.out.println("ID-----FROM/TO-----AMOUNT");
+            System.out.println("--------------------------------------------");
+            System.out.println("ID------FROM/TO---------------------AMOUNT");
             for(int i = 0; i < transfers.length; i++){
+                //add the transfer ID to a list of transfer IDS
+                transferIDs.add(transfers[i].getTransferID());
                 //if user was sender, show as TO
                 if(user.getUsername().equals(transfers[i].getSenderName())){
-                    System.out.println(transfers[i].getTransferID()+"-----TO:" + transfers[i].getDestinationName() + "-----$" + transfers[i].getAmount());
+                    System.out.println(transfers[i].getTransferID()+"-----TO:" + transfers[i].getDestinationName() + "-------------------$" + transfers[i].getAmount());
                 }
                 //if user received, show as FROM
                 else if(user.getUsername().equals(transfers[i].getDestinationName())){
-                    System.out.println(transfers[i].getTransferID()+"-----FROM:" + transfers[i].getSenderName() + "-----$" + transfers[i].getAmount());
+                    System.out.println(transfers[i].getTransferID()+"-----FROM:" + transfers[i].getSenderName() + "-----------------$" + transfers[i].getAmount());
                 }
                 //if user doesn't match any part of transaction, we have a problem :(
                 else{
                     System.out.println("----------------INVALID TRANSFER IN DATABASE----------------");
                 }
             }
-            System.out.println("---------------------------------------------");
+            System.out.println("--------------------------------------------");
+        }
+
+        int userInput = consoleService.promptForInt("Enter a transfer ID to see more details. Enter (0) to return to the menu: ");
+        while(userInput != 0 && (!transferIDs.contains(userInput))){
+            userInput = consoleService.promptForInt("Not a valid ID. Enter a transfer ID or enter (0) to return to the menu: ");
+        }
+        if(userInput != 0){
+            Transaction singleTransaction = tenmoService.getTransaction(userInput);
+            System.out.println();
+            System.out.println(singleTransaction);
         }
 	}
 
@@ -141,7 +155,6 @@ public class App {
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
         //help user create a transaction object
        User[] allUsers = tenmoService.getAllUsers();
        int currentUserIndex = -1;

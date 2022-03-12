@@ -89,15 +89,38 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return "Transaction{" +
-                "transferID=" + transferID +
-                ", amount=" + amount +
-                ", senderName='" + senderName + '\'' +
-                ", senderID=" + senderUserID +
-                ", destinationName='" + destinationName + '\'' +
-                ", destinationID=" + destinationUserID +
-                ", status=" + status +
-                ", type=" + type +
-                '}';
+        String statusString = "";
+        String typeString = "";
+
+        switch(status){
+            case 1: statusString = "Pending";
+                    break;
+            case 2: statusString = "Approved";
+                    break;
+            case 3: statusString = "Rejected";
+                    break;
+        }
+
+        switch(type){
+            case 1: typeString = "Request";
+                break;
+            case 2: typeString = "Send";
+                break;
+
+        }
+
+        String output = "--------------------------------------------"+ System.lineSeparator() +
+                "Transfer Details" + System.lineSeparator() +
+                "--------------------------------------------" + System.lineSeparator() +
+                "ID: " + transferID + System.lineSeparator() +
+                "From: " + senderName  + System.lineSeparator() +
+                "To: " + destinationName  + System.lineSeparator() +
+                "Type: " + typeString +  System.lineSeparator() +
+                "Status: " + statusString + System.lineSeparator() +
+                "Amount: " + amount + System.lineSeparator() +
+                "--------------------------------------------";
+
+
+        return output;
     }
 }
