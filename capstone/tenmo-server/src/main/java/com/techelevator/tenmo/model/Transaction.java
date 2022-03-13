@@ -6,7 +6,8 @@ import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 public class Transaction {
-
+//Because this is the server side me must add validating conditions
+    //an incoming transaction object must adhere to these rules (ex. @Min)
     private int transferID;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Transfer amount must be greater than 0")
