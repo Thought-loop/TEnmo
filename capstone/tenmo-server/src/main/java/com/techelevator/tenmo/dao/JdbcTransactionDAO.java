@@ -25,8 +25,9 @@ public class JdbcTransactionDAO implements TransactionDAO{
         //converts them into transaction objects and adds all transaction objects to a list
         //returns the list of transaction objects
 
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfer WHERE account_from = ? OR account_to = ?;";
+        String sql = "SELECT transfer_id, transfer_type_id, transfer.transfer_status_id, account_from, account_to, amount " +
+                "FROM transfer JOIN transfer_status ON transfer.transfer_status_id = transfer_status.transfer_status_id" +
+                " WHERE account_from = ? OR account_to = ? AND (transfer_status_desc = 'Approved' OR transfer_status_desc = 'Rejected');";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userID, userID);
         List<Transaction> myTransactions = new ArrayList<>();
         while(results.next()){

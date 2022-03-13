@@ -24,6 +24,7 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
+    //We create a new TenmoService passing in the API_BASE_URL
     private final TenmoService tenmoService = new TenmoService(API_BASE_URL);
 
     private AuthenticatedUser currentUser;
@@ -66,6 +67,8 @@ public class App {
         }
     }
 
+    //Added setting tenmoService.setAuthToken for a successful login
+    //Otherwise the token would not be saved anywhere
     private void handleLogin() {
         UserCredentials credentials = consoleService.promptForCredentials();
         currentUser = authenticationService.login(credentials);
@@ -103,11 +106,14 @@ public class App {
         }
     }
 
+    // Prints balance by calling tenmoService.getBalance()
 	private void viewCurrentBalance() {
         BigDecimal balance = tenmoService.getBalance();
         System.out.println("Your current account balance is: $" + balance);
 	}
 
+    //Prints out current users transfer history not including pending requests
+    //If the user has no history then it prints "You have no ..."
 	private void viewTransferHistory() {
 		// TODO add ability to get info about a specific transaction from the list of transactions
         Transaction[] transfers = tenmoService.listTransactions();
@@ -118,17 +124,17 @@ public class App {
         else{
             User user = currentUser.getUser();
             System.out.println("--------------------------------------------");
-            System.out.println("ID------FROM/TO---------------------AMOUNT");
+            System.out.println("ID-------FROM/TO--------STATUS---------AMOUNT");
             for(int i = 0; i < transfers.length; i++){
                 //add the transfer ID to a list of transfer IDS
                 transferIDs.add(transfers[i].getTransferID());
                 //if user was sender, show as TO
                 if(user.getUsername().equals(transfers[i].getSenderName())){
-                    System.out.println(transfers[i].getTransferID()+"-----TO:" + transfers[i].getDestinationName() + "-------------------$" + transfers[i].getAmount());
+                    System.out.println(transfers[i].getTransferID()+"-----TO:" + transfers[i].getDestinationName() + "-----"  + transfers[i].statusToString()  + "---------$" + transfers[i].getAmount());
                 }
                 //if user received, show as FROM
                 else if(user.getUsername().equals(transfers[i].getDestinationName())){
-                    System.out.println(transfers[i].getTransferID()+"-----FROM:" + transfers[i].getSenderName() + "-----------------$" + transfers[i].getAmount());
+                    System.out.println(transfers[i].getTransferID()+"-----FROM:" + transfers[i].getSenderName() + "---" + transfers[i].statusToString() + "---------$" + transfers[i].getAmount());
                 }
                 //if user doesn't match any part of transaction, we have a problem :(
                 else{
@@ -149,6 +155,8 @@ public class App {
         }
 	}
 
+    //Prints a list of pending requests involving the current user
+    //Also allows the user to approve or reject a request
 	private void viewPendingRequests() {
         Transaction[] transfers = tenmoService.listPendingTransactions();
         List<Integer> transferIDs = new ArrayList<>();
@@ -218,6 +226,9 @@ public class App {
 		
 
 
+    //Sends a new sendBucks transaction to the server and prints out the server's transaction response
+    //In order to allow user to cancel the transaction, we add one to the index that the user is choosing (line 239)
+    //so we must subtract one to match up the selection
 	private void sendBucks() {
         //help user create a transaction object
        User[] allUsers = tenmoService.getAllUsers();
@@ -247,6 +258,7 @@ public class App {
         }
 	}
 
+    //Sends a new requestBucks transaction to the server and prints out the server's transaction response
 	private void requestBucks() {
 
         User[] allUsers = tenmoService.getAllUsers();

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class Transaction {
     //TODO copy of tenmo-server Transaction class (will not need @notblank @min, etc annotations)
+    //Only difference is the toString and statusToString otherwise this model is identical to the server side transaction model
 
     private int transferID;
     private BigDecimal amount;
@@ -87,6 +88,7 @@ public class Transaction {
         this.status = status;
     }
 
+    //Overriding toString method to print out transaction format in nice format
     @Override
     public String toString() {
         String statusString = "";
@@ -122,5 +124,20 @@ public class Transaction {
 
 
         return output;
+    }
+
+    //Converts status code to string description for use in viewTransferHistory
+    public String statusToString(){
+        String statusString = "";
+
+        switch(status){
+            case 1: statusString = "Pending";
+                break;
+            case 2: statusString = "Approved";
+                break;
+            case 3: statusString = "Rejected";
+                break;
+        }
+        return statusString;
     }
 }
