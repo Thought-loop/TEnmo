@@ -31,15 +31,14 @@ public class TenmoController {
         this.transactionDao = transactionDAO;
     }
 
+    //Returns the balance from the dao from the currently logged-in user
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
     public BigDecimal getBalance(Principal principal) {
-        //How do we get user id from token?
-        //We will be passing in a User object
-        //@Valid says it has to be a valid token, then constructs a user object
         return userDao.getBalance(principal.getName());
     }
 
 
+    //Verifies then processes a send transaction in the database. Returns a successful transaction including an ID for the transaction
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path="/send", method = RequestMethod.POST)
     public Transaction sendTransfer(@RequestBody @Valid Transaction transaction, Principal principal)
@@ -74,18 +73,20 @@ public class TenmoController {
     }
 
 
+    //Returns a list of transactions from the dao for the currently logged-in user
     @RequestMapping(path = "/transactions", method = RequestMethod.GET)
     public Transaction[] listTransactions(Principal principal) {
         return transactionDao.listTransactions(userDao.findAccountIdByUsername(principal.getName()));
     }
 
 
+    //Returns a specific transaction from the dao
     @RequestMapping(path = "/transactions/{id}", method = RequestMethod.GET)
     public Transaction get(@PathVariable int id) {
         return transactionDao.getTransaction(id);
     }
 
-    //returns a list of users (with passwords redacted)
+    //Returns a list of users (with passwords redacted)
     @RequestMapping(path = "/users", method = RequestMethod.GET)
     public User[] getAllUsers(){
         return userDao.findAll();

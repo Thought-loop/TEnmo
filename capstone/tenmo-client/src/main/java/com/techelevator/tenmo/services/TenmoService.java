@@ -20,9 +20,14 @@ public class TenmoService {
     private String authToken = null;
     public void setAuthToken(String authToken){this.authToken = authToken;}
 
+    //Constructor for TenmoService, which sets base URL
     public TenmoService(String API_BASE_URL) {
         this.API_BASE_URL = API_BASE_URL;
     }
+
+    //Any time we make a request to the server we include an HttpEntity that always includes our JWT
+    //We use makeTransactionEntity when we also want to send a transaction object to the server
+    //We use makeAuthEntity when don't need to send a transaction object to the server
 
     //HttpEntity<Transaction> - Include both authtoken (credentials) and a transaction object to send to the server
     private HttpEntity<Transaction> makeTransactionEntity(Transaction transaction) {
@@ -40,7 +45,7 @@ public class TenmoService {
     }
 
 
-
+//Requests a list of transactions from the server
     public Transaction[] listTransactions(){
         Transaction[] transactions = new Transaction[0];
         try {
@@ -53,7 +58,7 @@ public class TenmoService {
 
         return transactions;
     }
-
+//Request a single transaction from the server
     public Transaction getTransaction(long transferID){
         Transaction transaction = null;
         try {
@@ -67,7 +72,7 @@ public class TenmoService {
     }
 
 
-
+//Requests the balance from the server
     public BigDecimal getBalance(){
         BigDecimal balance = null;
         try {
@@ -82,7 +87,7 @@ public class TenmoService {
     }
 
 
-
+//Requests a list of all users from the server
     public User[] getAllUsers(){
         User[] users = null;
 
@@ -99,7 +104,8 @@ public class TenmoService {
     }
 
 
-
+//Sends a new sendMoney transaction to the server and returns a response. For a successful transaction it returns details about the transaction
+    //otherwise it returns and error message
     public String sendMoney(Transaction transaction) {
         Transaction responseTransaction = null;
 
@@ -115,7 +121,7 @@ public class TenmoService {
     return responseTransaction.toString();
     }
 
-
+//Requests a list of transactions from the server and involving the current user
     public Transaction[] listPendingTransactions(){
         Transaction[] transactions = new Transaction[0];
         try {
@@ -129,6 +135,9 @@ public class TenmoService {
         return transactions;
     }
 
+    //Updates an existing transfer request on the server
+    //The http method is implied with restTemplate.put
+    //This method returns a boolean, so success returns true
     public boolean updateRequestStatus( Transaction transaction) {
         boolean success = false;
 
@@ -141,6 +150,7 @@ public class TenmoService {
         return success;
     }
 
+    //Sends a new transaction transfer request to the server
     public String requestMoney(Transaction transaction) {
         Transaction responseTransaction = null;
 

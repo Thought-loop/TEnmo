@@ -19,14 +19,16 @@ public class JdbcTransactionDAO implements TransactionDAO{
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
+    //query the transfer table for all transactions sent from, or sent to userID that our user approved or rejected
+    //converts them into transaction objects and adds all transaction objects to a list
+    //returns the list of transaction objects
     @Override
     public Transaction[] listTransactions(int userID){
-        //query the transfer table for all transactions sent from, or sent to userID
-        //converts them into transaction objects and adds all transaction objects to a list
-        //returns the list of transaction objects
 
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfer WHERE account_from = ? OR account_to = ?;";
+        String sql = "SELECT transfer_id, transfer_type_id, transfer.transfer_status_id, account_from, account_to, amount " +
+                "FROM transfer JOIN transfer_status ON transfer.transfer_status_id = transfer_status.transfer_status_id" +
+                " WHERE account_from = ? OR account_to = ? AND (transfer_status_desc = 'Approved' OR transfer_status_desc = 'Rejected');";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userID, userID);
         List<Transaction> myTransactions = new ArrayList<>();
         while(results.next()){
@@ -40,6 +42,7 @@ public class JdbcTransactionDAO implements TransactionDAO{
         return transactions;
     }
 
+    //query transfer table for a specific transfer
     @Override
     public Transaction getTransaction(int transferID){
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
@@ -51,7 +54,7 @@ public class JdbcTransactionDAO implements TransactionDAO{
         return null;
     }
 
-    //look up 2000 number from 1000 number and set that as account_id for the insert
+    //creates a new transfer and returns the transfer with its new ID
     @Override
     public Transaction create(Transaction transaction){
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
@@ -64,9 +67,9 @@ public class JdbcTransactionDAO implements TransactionDAO{
         return transaction;
     }
 
+    //takes in a sql rowset from transfer table
+    //converts columns into a transaction object and returns that object
     private Transaction mapRowToTransaction(SqlRowSet rowSet){
-        //takes in a sql rowset from transfer table
-        //converts columns into a transaction object and returns that object
 
         Transaction transaction = new Transaction();
         transaction.setAmount(rowSet.getBigDecimal("amount"));
@@ -91,7 +94,7 @@ public class JdbcTransactionDAO implements TransactionDAO{
         return transaction;
     }
 
-
+    //query the database for pending requests from the given user id
     public Transaction[] listPendingTransactions( int userID){
 
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
@@ -111,6 +114,7 @@ public class JdbcTransactionDAO implements TransactionDAO{
     }
 
 
+    //update a transaction in the database
     public void updateTransferStatus(Transaction transaction) {
         String sql = "UPDATE transfer SET transfer_status_id = ? WHERE transfer_id = ?;";
         int rowsUpdated = jdbcTemplate.update(sql, transaction.getStatus(), transaction.getTransferID());
