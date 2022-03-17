@@ -35,6 +35,12 @@ public class App {
     }
 
     private void run() {
+        System.out.println(System.lineSeparator()+System.lineSeparator()+System.lineSeparator()+System.lineSeparator()+System.lineSeparator());
+        System.out.println("**************************************************************************");
+        System.out.println("*** Connecting to server hosted at " + API_BASE_URL + " ***");
+        System.out.println("**************************************************************************");
+        System.out.println(System.lineSeparator()+System.lineSeparator());
+
         consoleService.printGreeting();
         loginMenu();
         if (currentUser != null) {
